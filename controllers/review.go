@@ -41,12 +41,28 @@ func CreateReview(c *gin.Context) {
 // @Tags reviews
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "JWT Authorization header"
-// @Security ApiKeyAuth
 // @Param phone_id path int true "Phone ID"
 // @Success 200 {object} []models.Review
 // @Router /reviews/{phone_id} [get]
 func GetReviews(c *gin.Context) {
+	phoneID := c.Param("phone_id")
+	var reviews []models.Review
+	if err := config.DB.Where("phone_id = ?", phoneID).Preload("Comments").Find(&reviews).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, reviews)
+}
+
+// GetAllReviews godoc
+// @Summary Get all reviews
+// @Description Get all reviews without authentication
+// @Tags reviews
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Review
+// @Router /reviews [get]
+func GetAllReviews(c *gin.Context) {
 	var reviews []models.Review
 	if err := config.DB.Preload("Comments").Find(&reviews).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -595,6 +595,22 @@ paths:
       tags:
       - features
   /reviews:
+    get:
+      consumes:
+      - application/json
+      description: Get all reviews without authentication
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Review'
+            type: array
+      summary: Get all reviews
+      tags:
+      - reviews
     post:
       consumes:
       - application/json
@@ -692,11 +708,6 @@ paths:
       - application/json
       description: Get reviews by phone ID
       parameters:
-      - description: JWT Authorization header
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Phone ID
         in: path
         name: phone_id
@@ -711,8 +722,6 @@ paths:
             items:
               $ref: '#/definitions/models.Review'
             type: array
-      security:
-      - ApiKeyAuth: []
       summary: Get reviews by phone ID
       tags:
       - reviews

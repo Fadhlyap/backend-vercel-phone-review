@@ -771,6 +771,30 @@ const docTemplate = `{
             }
         },
         "/reviews": {
+            "get": {
+                "description": "Get all reviews without authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reviews"
+                ],
+                "summary": "Get all reviews",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Review"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -916,11 +940,6 @@ const docTemplate = `{
         },
         "/reviews/{phone_id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Get reviews by phone ID",
                 "consumes": [
                     "application/json"
@@ -933,13 +952,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get reviews by phone ID",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "JWT Authorization header",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Phone ID",
