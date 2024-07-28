@@ -146,3 +146,30 @@ func DeleteReview(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "review deleted successfully"})
 }
+
+// GetReviewByID godoc
+// @Summary Get a review by ID
+// @Description Get a review by ID
+// @Tags reviews
+// @Accept json
+// @Produce json
+// @Param id path int true "Review ID"
+// @Success 200 {object} models.Review
+// @Router /reviews/{id} [get]
+func GetReviewByID(c *gin.Context) {
+	reviewID := c.Param("id")
+	var review models.Review
+
+	// Retrieve the review from the database
+	if err := config.DB.Preload("Comments").First(&review, reviewID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Review not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Return the review details
+	c.JSON(http.StatusOK, review)
+}
