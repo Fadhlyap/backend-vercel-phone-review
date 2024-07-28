@@ -669,6 +669,26 @@ paths:
       summary: Delete a review
       tags:
       - reviews
+    get:
+      consumes:
+      - application/json
+      description: Get a review by ID
+      parameters:
+      - description: Review ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Review'
+      summary: Get a review by ID
+      tags:
+      - reviews
     put:
       consumes:
       - application/json
