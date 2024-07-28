@@ -19,6 +19,7 @@ func SetupRouter() *gin.Engine {
 		{
 			authRoutes.POST("/register", controllers.Register)
 			authRoutes.POST("/login", controllers.Login)
+			authRoutes.GET("/me", middleware.JWTAuthMiddleware(), controllers.GetMe)
 			authRoutes.PUT("/change-password/:id", controllers.ChangePassword)
 		}
 

@@ -90,7 +90,9 @@ definitions:
   models.User:
     properties:
       comments:
-        $ref: '#/definitions/models.Comment'
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
       password:
         type: string
       profile:
@@ -156,6 +158,29 @@ paths:
               type: string
             type: object
       summary: Log in a user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get details of the authenticated user
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      security:
+      - BearerAuth: []
+      summary: Get current user
       tags:
       - auth
   /auth/register:

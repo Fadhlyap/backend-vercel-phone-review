@@ -34,7 +34,6 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Check token expiration
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization token"})
@@ -48,6 +47,9 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		userID := claims["user_id"].(float64) // Ensure this matches the claim set during login
+		c.Set("user_id", uint(userID))
 
 		// Pass on to the next handler if token is valid
 		c.Next()
