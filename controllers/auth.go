@@ -57,48 +57,47 @@ func Register(c *gin.Context) {
 // @Success 200 {object} map[string]string
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
-    var input models.User
-    var user models.User
+	var input models.User
+	var user models.User
 
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := config.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
-        if err == gorm.ErrRecordNotFound {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-            return
-        }
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := config.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-    if !utils.CheckPassword(input.Password, user.Password) {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-        return
-    }
+	if !utils.CheckPassword(input.Password, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
 
-    // Generate JWT token
-    expirationTime := time.Now().Add(24 * time.Hour) // Token valid for 24 hours
-    claims := &Claims{
-        UserID:   user.ID,
-        Username: input.Username,
-        StandardClaims: jwt.StandardClaims{
-            ExpiresAt: expirationTime.Unix(),
-        },
-    }
+	// Generate JWT token
+	expirationTime := time.Now().Add(24 * time.Hour) // Token valid for 24 hours
+	claims := &Claims{
+		UserID:   user.ID,
+		Username: input.Username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
 
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    tokenString, err := token.SignedString(jwtSecret)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
-        return
-    }
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
-
 
 // ChangePassword godoc
 // @Summary Change user password
@@ -154,22 +153,28 @@ func ChangePassword(c *gin.Context) {
 // @Success 200 {object} models.User
 // @Router /auth/me [get]
 func GetMe(c *gin.Context) {
-    userID, exists := c.Get("user_id")
-    if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
-        return
-    }
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
+		return
+	}
 
-    var user models.User
-    if err := config.DB.Preload("Profile").Preload("Reviews").First(&user, userID).Error; err != nil {
-        if err == gorm.ErrRecordNotFound {
-            c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        } else {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
-        }
-        return
-    }
+	var user models.User
+	if err := config.DB.Preload("Profile").Preload("Reviews").First(&user, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
+		}
+		return
+	}
 
-    c.JSON(http.StatusOK, user)
+	userResponse := models.UserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Profile:  user.Profile,
+		Reviews:  user.Reviews,
+	}
+
+	c.JSON(http.StatusOK, userResponse)
 }
-
