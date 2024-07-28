@@ -46,6 +46,7 @@ func SetupRouter() *gin.Engine {
 		reviewRoutes.Use(middleware.JWTAuthMiddleware())
 		{
 			reviewRoutes.POST("/", controllers.CreateReview)
+			reviewRoutes.POST("/", controllers.GetAllReviews)
 			reviewRoutes.GET("/:phone_id", controllers.GetReviews)
 			reviewRoutes.PUT("/:id", controllers.UpdateReview)
 			reviewRoutes.DELETE("/:id", controllers.DeleteReview)
